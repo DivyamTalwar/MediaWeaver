@@ -79,14 +79,13 @@ app = workflow.compile()
 
 if __name__ == "__main__":
     prompts = [
-        "Develop a comprehensive content strategy about the impact of AI in gambling apps.",
-        "Summarize the latest news regarding Artificial Intelligence.",
-        "Write a detailed blog post on the how AI can replace humans.",
-        "Draft a LinkedIn post about the rise of AI in Virtual Gaming.",
-        "Create a photorealistic image of a Two Dogs Sleeping On The Red Bed",
-        "Search for high-quality images of the Virat Kholi",
-        "Produce a short, informative faceless video explaining the history of ancient India",
-        "Take the image from this path'generated_images/a_cat_sitting_on_a_couch.png' and add a small, red bow tie to the cat."
+        "Develop a comprehensive content strategy about the future of renewable energy.",
+        "Summarize the latest news regarding space exploration.",
+        "Write a detailed blog post on the benefits of remote work.",
+        "Draft a LinkedIn post about the importance of networking in the tech industry.",
+        "Create a photorealistic image of a serene beach at sunset.",
+        "Search for high-quality images of the Eiffel Tower at night.",
+        "Produce a short, informative faceless video explaining the history of the internet.",
     ]
 
     for user_prompt in prompts:
