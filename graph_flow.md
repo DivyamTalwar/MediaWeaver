@@ -1,37 +1,46 @@
-# Graph Flow Explanation
+# MediaWeaver: Intelligent Content Automation Workflow
 
-This document explains the final, reliable flow of the LangGraph graph defined in `main.py`. The workflow is designed to be deterministic and robust, ensuring the correct tool is executed every time.
+This document provides a comprehensive overview of the sophisticated graph-based workflow defined in `main.py`. The system, powered by LangGraph, leverages a powerful Large Language Model (LLM) to function as an intelligent agent, capable of understanding natural language prompts, selecting the appropriate tool, and executing complex content generation tasks.
 
-## 1. Graph Structure
+---
 
-The graph consists of two primary nodes and a clear, linear flow from start to finish.
+## 1. Core Architecture: The Agentic Workflow
 
--   **`agent` (Dispatcher Node)**: This is the entry point of the graph. It is not a traditional LLM-based agent but a deterministic **dispatcher**. Its sole responsibility is to parse a structured JSON request from the input message and create a specific tool call.
--   **`action` (Tool Execution Node)**: This node receives the tool call from the `agent` node and executes the corresponding tool function with the provided arguments.
+At its heart, the system is not a simple, linear script but a dynamic, stateful graph. This architecture allows for flexible and intelligent decision-making, moving beyond rigid, predefined flows.
 
-## 2. State Management
+-   **`agent` (The Brain)**: This is the central node of the graph and the primary entry point. It is powered by Google's `gemini-1.5-flash` model, which has been bound to a suite of custom tools. When it receives a user's prompt (e.g., "write a blog post about AI"), it analyzes the request, determines the user's intent, and decides which tool is best suited for the job (e.g., `blog_post`). It then constructs a precise `tool_call` with the necessary arguments.
 
-The graph's state is managed by the `AgentState` class, which holds:
+-   **`action` (The Hands)**: This node is the workhorse of the graph. It receives the `tool_call` from the `agent` and acts as a router, executing the specified tool function (e.g., `blog_post()`, `create_image()`, etc.) with the arguments provided by the agent.
 
--   `messages`: A sequence of messages that tracks the conversation and tool interactions.
--   `chat_id`: A unique identifier for the session, passed to the tools if needed.
+## 2. State Management (`AgentState`)
 
-## 3. Execution Flow
+The graph's memory and context are managed by the `AgentState` class. This is a critical component that allows the graph to track the conversation's history. It contains:
 
-The graph follows a simple, reliable, two-step process:
+-   `messages`: A continuously updated sequence of messages. This includes the initial `HumanMessage` (the user's prompt), the `AIMessage` from the agent (containing the tool call), and the `ToolMessage` (containing the result from the tool execution). This message history provides the full context for each run.
 
-1.  **Entry Point -> `agent` Node**:
-    -   The execution begins when `main.py` invokes the graph. The initial state contains a `HumanMessage` with a content payload structured as a JSON string (e.g., `{"tool_name": "blog_post", "args": {"topic": "..."}}`).
-    -   The `agent` node (`agent_dispatcher` function) parses this JSON string.
-    -   It constructs an `AIMessage` containing a precise `tool_call` for the specified tool and arguments.
+## 3. The Execution Flow: A Step-by-Step Journey
 
-2.  **`agent` Node -> `action` Node**:
-    -   The `should_continue` conditional edge checks the output of the `agent` node. Since the message now contains a tool call, the graph transitions to the `action` node.
-    -   The `action` node (`call_tool` function) executes the requested tool.
-    -   The tool performs its task: generating content, saving it locally to the `langgraph/generated_*` directory, and logging the action to the designated Google Sheet.
+The graph follows an intelligent, conditional flow that enables it to handle a wide range of tasks seamlessly.
 
-3.  **`action` Node -> `END`**:
-    -   After the tool execution is complete, the graph follows a direct edge to the `END` state.
-    -   The execution finishes cleanly. There is no loop back to the agent, as the workflow is designed to perform one specific tool call per run.
+1.  **Initiation -> `agent` Node**:
+    -   The process begins when `main.py` invokes the graph with an initial state. This state contains a `HumanMessage` with a natural language prompt from the user (e.g., "Create a short video about the history of the internet").
+    -   The `agent` node receives this message. The powerful `gemini-1.5-flash` model analyzes the text, understands the user's goal, and generates an `AIMessage` containing a `tool_call` directed at the most appropriate tool (in this case, `faceless_video`).
 
-This dispatcher-based architecture ensures that the system is predictable and robust, guaranteeing that the correct tool is always called with the correct parameters.
+2.  **Conditional Routing (`should_continue`)**:
+    -   After the `agent` node runs, the graph consults the `should_continue` function. This function inspects the last message in the state.
+    -   If the message is an `AIMessage` that contains a `tool_call`, it signals that there is work to be done. The graph then transitions to the **`action`** node.
+    -   If the message does not contain a tool call (e.g., if the agent were to respond with a simple text message), the graph transitions to the **`END`** state, concluding the run.
+
+3.  **Execution -> `action` Node**:
+    -   The `action` node receives the `tool_call` and executes the corresponding Python function.
+    -   The tool performs its specialized task:
+        -   **Content Generation**: Writes a detailed blog post, a professional LinkedIn update, or a video script.
+        -   **Image Manipulation**: Creates a new image from a prompt or edits an existing one.
+        -   **Data Retrieval**: Fetches news articles or searches for images.
+    -   Upon completion, the tool saves its output to the appropriate `generated_*` directory and logs the activity to a centralized Google Sheet for tracking.
+    -   The result of the tool's execution (e.g., "Success: Blog post created...") is then packaged into a `ToolMessage`.
+
+4.  **Conclusion -> `END`**:
+    -   After the `action` node finishes, the graph follows a direct edge to the `END` state. The workflow is designed to execute a single, complete tool action per invocation, ensuring a clean and predictable conclusion.
+
+This agent-driven architecture makes the MediaWeaver system exceptionally powerful and flexible. It can interpret a wide variety of user requests and intelligently route them to the correct tool, creating a seamless and automated content creation pipeline.
