@@ -16,3 +16,5 @@ accelerate
 safetensors
 transformers
 torch
+streamlit
+python-dotenv

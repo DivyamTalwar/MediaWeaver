@@ -82,10 +82,10 @@ if __name__ == "__main__":
         "Develop a comprehensive content strategy about the future of renewable energy.",
         "Summarize the latest news regarding space exploration.",
         "Write a detailed blog post on the benefits of remote work.",
-        "Draft a LinkedIn post about the importance of networking in the tech industry.",
-        "Create a photorealistic image of a serene beach at sunset.",
-        "Search for high-quality images of the Eiffel Tower at night.",
-        "Produce a short, informative faceless video explaining the history of the internet.",
+        "Draft a LinkedIn post about the importance of networking in Jobs.",
+        "Create a photorealistic image of a Cat Playing In Water With Green Ball.",
+        "Search for high-quality images of the Elephants With There Babies.",
+        "Produce a short, informative faceless video explaining the History Of Cricket",
     ]
 
     for user_prompt in prompts:

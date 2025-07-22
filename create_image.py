@@ -1,12 +1,14 @@
 import os
-import requests
 from PIL import Image
-from io import BytesIO
 from google_integrations import log_to_sheet
-from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
+from huggingface_hub import InferenceClient
+from dotenv import load_dotenv
+
+load_dotenv()
 
 IMAGE_DIR = "generated_images"
 HF_IMAGE_GEN_MODEL = "stabilityai/stable-diffusion-xl-base-1.0"
+HF_API_TOKEN = os.getenv("HUGGINGFACE_API_KEY")
 
 def create_image(image_prompt: str, title: str) -> str:
     print(f"Generating image for prompt '{image_prompt}' with title '{title}'")
@@ -14,20 +16,12 @@ def create_image(image_prompt: str, title: str) -> str:
     try:
         os.makedirs(IMAGE_DIR, exist_ok=True)
 
-        llm = HuggingFaceEndpoint(
-            endpoint_url=HF_IMAGE_GEN_MODEL,
-            task="text-to-image",
-            max_new_tokens=512,
-            top_k=50,
-            top_p=0.95,
-            typical_p=0.95,
-            temperature=0.8,
-            repetition_penalty=1.03,
-        )
+        if not HF_API_TOKEN:
+            raise ValueError("Hugging Face API token not found. Please set the HF_API_TOKEN environment variable.")
+
+        client = InferenceClient(token=HF_API_TOKEN)
         
-        image_bytes = llm.invoke(image_prompt)
-        
-        image = Image.open(BytesIO(image_bytes))
+        image = client.text_to_image(image_prompt, model=HF_IMAGE_GEN_MODEL)
         
         safe_title = "".join(c for c in title if c.isalnum() or c in (' ', '_')).rstrip()
         filename = f"{safe_title.replace(' ', '_')}.png"
